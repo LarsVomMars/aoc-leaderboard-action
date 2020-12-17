@@ -1,11 +1,19 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'AOC leaderboard'
+description: 'Private AOC leaderboard to README'
 inputs:
-  milliseconds: # change this
+  session:
+    description: 'AOC session ID.'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  leaderboardID:
+    description: 'ID of the AOC leaderboard.'
+    required: true
+  year:
+    description: 'The event year. Defaults to current AOC year.'
+    required: false
+  filename:
+    description: 'The markdown file to which the leaderboard should be written. Defaults to /README.md'
+    required: false
+
 runs:
   using: 'node12'
-  main: 'dist/index.js'
+  main: 'index.js'
