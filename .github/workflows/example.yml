@@ -1,0 +1,28 @@
+name: Update Ranking in README
+
+on:
+  schedule:
+    - cron: 0 */12 * * * # Run every 12 hours
+
+  workflow_dispatch: # Run manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ssh-key: ${{ secrets.SSH_KEY }}
+    - name: Test Example
+      uses: ./
+      with:
+        session: ${{ secrets.SESSION }}
+        leaderboardID: ${{ secrets.ID }}
+    - name: Push changes
+      run: |
+          git config --global user.email "<>"
+          git config --global user.name "AOC Rankings"
+          git add README.md
+          git diff-index --quiet HEAD || git commit -m "Updated rankings"
+          git push

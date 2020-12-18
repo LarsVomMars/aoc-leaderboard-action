@@ -70,13 +70,31 @@ function run() {
             // Sort by score
             members.sort((a, b) => b.score - a.score);
             let file = yield fs_1.promises.readFile(fileName, "utf8");
-            for (let i = 0; i < members.length; i++) {
-                const member = members[i];
-                const memberString = `|${i + 1}|[${member.name}](${member.github})|${member.score}|${member.stars}|`;
-                const regex = new RegExp(`\\|\\s*${i + 1}\\s*\\|\\[[\\w\\s]+\\]\\([\\w:\\/\\.]+\\)\\|(\\d+\\|){2}`, "gi");
-                file = file.replace(regex, memberString);
+            // eslint-disable-next-line no-console
+            console.log(fileName, file);
+            const tableRegex = new RegExp(// TODO: Think about \\s* pre-/suffixes
+            `\\|(\\w+\\|){4}\\n\\|([:-]+\\|){4}\\n\\|\\*\\*Event\\*\\*\\|\\|\\|${year}\\|\\n\\|\\*\\*Leaderboard\\*\\*\\|\\|\\|${id}\\|(\\n\\|\\s*\\d+\\s*\\|\\[[\\w\\s]+\\]\\([\\w:\\/\\.]+\\)\\|(\\d+\\|){2})+\\n\\|(\\w+\\|){4}`, "gi");
+            if (tableRegex.test(file)) {
+                // Update existing table
+                for (let i = 0; i < members.length; i++) {
+                    const member = members[i];
+                    const memberString = `|${i + 1}|[${member.name}](${member.github})|${member.score}|${member.stars}|`;
+                    const regex = new RegExp(`\\|\\s*${i + 1}\\s*\\|\\[[\\w\\s]+\\]\\([\\w:\\/\\.]+\\)\\|(\\d+\\|){2}`, "gi");
+                    file = file.replace(regex, memberString);
+                }
+                yield fs_1.promises.writeFile(fileName, file, "utf8");
             }
-            yield fs_1.promises.writeFile(fileName, file, "utf8");
+            else {
+                // Create new table
+                let tbl = "\n|Rank|Name|Score|Stars|\n|:----|:----|-----:|-----:|\n|**Event**|||2020|\n|**Leaderboard**|||659813|\n";
+                for (let i = 0; i < members.length; i++) {
+                    const member = members[i];
+                    const memberString = `|${i + 1}|[${member.name}](${member.github})|${member.score}|${member.stars}|`;
+                    tbl += `${memberString}\n`;
+                }
+                tbl += "|Rank|Name|Score|Stars|";
+                yield fs_1.promises.appendFile(fileName, tbl, "utf8");
+            }
         }
         catch (error) {
             core.setFailed(error.message);
